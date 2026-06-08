@@ -1,7 +1,6 @@
 import entities.*;
 import service.*;
 import java.util.*;
-import observer.*;
 
 public class StackOverflowDemo {
     public static void main(String[] args) {
