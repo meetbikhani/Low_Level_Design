@@ -1,7 +1,6 @@
 
 import Service.*;
 import Entities.*;
-import State.*;
 
 public class vendingMachineDemo {
     public static void main(String[] args) {
