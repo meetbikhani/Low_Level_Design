@@ -1,0 +1,3 @@
+pretty simple lld question, we just need to create user and for users we have tasks, each task has id, name, priority, comments, etc etc. There will be states for task todo, inprogress and completes and functions for each. also there will functions to add comments, start task, sort tasks etc. Also we can give observers to get informed after a task is done.
+
+desing patterns - state, observer, singleton
