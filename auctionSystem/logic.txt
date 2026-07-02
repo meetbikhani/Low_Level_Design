@@ -1,0 +1,57 @@
+I'm thinking of designing the Auction System by creating an Item class to store product details such as name, description, and base price, and an Auction class that represents an auction for a particular item. Each auction will maintain its item, start time, end time, current status (PENDING, ACTIVE, ENDED), a list of subscribers, and all the bids placed on it. Instead of storing only bidders, I would introduce a separate Bid class containing the bidder, bid amount, and timestamp, and maintain these bids in a max-heap (PriorityQueue) so that retrieving the highest bid and the winner becomes efficient. The AuctionSystem will follow the Singleton pattern and maintain thread-safe collections of items and auctions, exposing operations such as creating auctions, placing bids, getting the highest bid, and retrieving winners. To notify users when they are outbid or when an auction ends, I would use the Observer pattern, where every auction maintains a list of subscribers and sends updates to them through different notification implementations. For automatically ending auctions, although production systems would use a scheduler or event-driven mechanism, for an SDE-1 interview I would keep the design simple by running a background thread with an infinite loop that periodically checks all active auctions, compares their end times with the current time, and marks them as ended when required, after which the winner is determined from the priority queue and all subscribers are notified.
+
+
+
+
+public class AuctionSystem {
+
+    private static AuctionSystem instance;
+
+    private List<Auction> auctions;
+
+    private AuctionSystem() {
+        auctions = new ArrayList<>();
+
+        startAuctionMonitor();
+    }
+
+    public static synchronized AuctionSystem getInstance() {
+        if (instance == null) {
+            instance = new AuctionSystem();
+        }
+
+        return instance;
+    }
+
+    public void addAuction(Auction auction) {
+        auctions.add(auction);
+    }
+
+    private void startAuctionMonitor() {
+
+        Thread monitor = new Thread(() -> {
+
+            while (true) {
+
+                for (Auction auction : auctions) {
+
+                    if (auction.getStatus() == AuctionStatus.ACTIVE &&
+                        LocalDateTime.now().isAfter(auction.getEndTime())) {
+
+                        auction.endAuction();
+                    }
+                }
+
+                try {
+                    Thread.sleep(1000);
+                }
+                catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        monitor.setDaemon(true);
+        monitor.start();
+    }
+}
